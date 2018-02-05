@@ -1,20 +1,14 @@
-﻿using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grubbs
 {
-    class Program
+    internal class Program
     {
+        public static double[] TestData = new double[] { 1.9, 20, 20, 20, 20, 19, 20, 19, 20, 20, 19, 20, 19, 19, 19, 19, 19, 19, 200, 18 };
 
-
-
-        public static double[] TestData = new double[]{ 1.9   ,20  ,20  ,20  ,20  ,19  ,20  ,19  ,20  ,20  ,19  ,20  ,19  ,19  ,19  ,19  ,19  ,19  ,200  ,18 };
-        
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             foreach (var ii in Grubbs.GetUnusualData(TestData).ToList())
             {
@@ -24,8 +18,7 @@ namespace Grubbs
         }
     }
 
-
-       public class Grubbs
+    public class Grubbs
     {
         private static double[] GrubbsCon95 = new double[31] { 0, 0, 0, 1.135, 1.463, 1.672, 1.822, 1.938, 2.032, 2.11, 2.176, 2.234, 2.285, 2.331, 2.371, 2.409, 2.443, 2.475, 2.504, 2.532, 2.557, 2.58, 2.603, 2.624, 2.644, 2.663, 2.745, 2.811, 2.866, 2.914, 2.956 };
 
@@ -43,8 +36,8 @@ namespace Grubbs
                 double maxd = WTestData.Max();
                 double mind = WTestData.Min();
 
-                double standardDeviation = ArrayStatistics.PopulationStandardDeviation(TestData);
-                double mean = ArrayStatistics.Mean(TestData);
+                double standardDeviation = StDev(TestData);
+                double mean = WTestData.Average();
 
                 double unusualValue = maxd - mean > mean - mind ? maxd : mind;
 
@@ -64,8 +57,39 @@ namespace Grubbs
             }
             return unusualData.ToArray();
         }
-    }
 
+        public static double StDev(double[] arrData) //计算标准偏差
+        {
+            double xSum = 0F;
+            double xAvg = 0F;
+            double sSum = 0F;
+            double tmpStDev = 0F;
+            int arrNum = arrData.Length;
+            for (int i = 0; i < arrNum; i++)
+            {
+                xSum += arrData[i];
+            }
+            xAvg = xSum / arrNum;
+            for (int j = 0; j < arrNum; j++)
+            {
+                sSum += ((arrData[j] - xAvg) * (arrData[j] - xAvg));
+            }
+            tmpStDev = Convert.ToSingle(Math.Sqrt((sSum / (arrNum - 1))).ToString());
+            return tmpStDev;
+        }
+        public static double CalculateStdDev(IEnumerable<double> values)
+        {
+            double ret = 0;
+            if (values.Count() > 0)
+            {
+                //  计算平均数   
+                double avg = values.Average();
+                //  计算各数值与平均数的差值的平方，然后求和 
+                double sum = values.Sum(d => Math.Pow(d - avg, 2));
+                //  除以数量，然后开方
+                ret = Math.Sqrt(sum / values.Count());
+            }
+            return ret;
+        }
     }
-
 }
